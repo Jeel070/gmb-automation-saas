@@ -1,0 +1,23 @@
+# Render deployment config for the Express API backend
+# Docs: https://render.com/docs/render-yaml
+
+services:
+  - type: web
+    name: gmb-automation-api
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: node api/index.js
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false        # Set this in Render dashboard — paste Neon connection string
+      - key: JWT_SECRET
+        sync: false        # Set this in Render dashboard — random 64-char string
+      - key: FRONTEND_URL
+        sync: false        # Set this after deploying frontend — e.g. https://your-app.vercel.app
+      - key: REDIS_URL
+        sync: false        # Get free Redis from Upstash: https://upstash.com — copy the rediss:// URL
