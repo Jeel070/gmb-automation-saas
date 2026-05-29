@@ -1,11 +1,3 @@
-/**
- * Seed script — creates test agency + client + sample posts.
- * Run: node scripts/seed.js
- *
- * Test credentials after seeding:
- *   Agency:  test@agency.com   / Woyce@123
- *   Client:  client@demo.com   / client123
- */
 require('dotenv').config();
 
 const bcrypt = require('bcryptjs');
@@ -18,7 +10,7 @@ async function seed() {
   try {
     console.log('Seeding test data...\n');
 
-    // ── Agency ──────────────────────────────────
+    // Create demo agency.
     const agencyId = uuidv4();
     const agencyHash = await bcrypt.hash('Woyce@123', 10);
 
@@ -29,7 +21,7 @@ async function seed() {
       [agencyId, 'Demo Agency', 'test@agency.com', agencyHash]
     );
 
-    // Re-fetch to get the actual ID (in case it already existed)
+    // Re-read agency id in case it already existed.
     const agencyRow = await client.query(
       'SELECT id FROM tenants WHERE email = $1',
       ['test@agency.com']
@@ -41,7 +33,7 @@ async function seed() {
     console.log(`  Password: Woyce@123`);
     console.log(`  ID:       ${actualAgencyId}\n`);
 
-    // ── Client (sub-tenant under agency) ────────
+    // Create demo client under agency.
     const clientId = uuidv4();
     const clientHash = await bcrypt.hash('client123', 10);
 
@@ -63,7 +55,7 @@ async function seed() {
     console.log(`  Password: client123`);
     console.log(`  ID:       ${actualClientId}\n`);
 
-    // ── Sample Posts for client ──────────────────
+    // Create sample posts.
     const now = new Date();
 
     const posts = [

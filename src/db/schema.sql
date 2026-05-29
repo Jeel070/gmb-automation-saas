@@ -1,13 +1,11 @@
--- Run this once to set up the database
+﻿-- Run this once to set up the database
 -- Supports: Neon, Supabase, or any PostgreSQL provider
 
 -- Enable UUID generation
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- ─────────────────────────────────────────────
 -- TENANTS
 -- Stores both agencies (super-tenant) and clients (sub-tenant)
--- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS tenants (
   id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   name        VARCHAR(255) NOT NULL,
@@ -18,10 +16,8 @@ CREATE TABLE IF NOT EXISTS tenants (
   created_at  TIMESTAMP   DEFAULT NOW()
 );
 
--- ─────────────────────────────────────────────
 -- POSTS
 -- Every post belongs to one tenant (row-level isolation via tenant_id)
--- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS posts (
   id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id    UUID        NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
@@ -36,10 +32,8 @@ CREATE TABLE IF NOT EXISTS posts (
   updated_at   TIMESTAMP   DEFAULT NOW()
 );
 
--- ─────────────────────────────────────────────
 -- PUBLISH LOGS
 -- Every publish attempt (success or failure) is logged here
--- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS publish_logs (
   id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   post_id      UUID        NOT NULL REFERENCES posts(id) ON DELETE CASCADE,

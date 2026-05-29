@@ -7,10 +7,6 @@ const { authMiddleware, agencyOnly } = require('../middleware/auth');
 
 const router = express.Router();
 
-// ─────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────
-
 function createToken(tenant) {
   return jwt.sign(
     {
@@ -28,10 +24,7 @@ function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// ─────────────────────────────────────────────
-// POST /api/auth/register
-// Agency signs up — creates a new agency tenant
-// ─────────────────────────────────────────────
+// Agency self-registration.
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -48,7 +41,7 @@ router.post('/register', async (req, res) => {
   }
 
   try {
-    // Check if email is already taken
+    // Reject duplicate email.
     const existing = await db.query('SELECT id FROM tenants WHERE email = $1', [email]);
     if (existing.rows.length > 0) {
       return res.status(409).json({ error: 'Email is already registered' });
@@ -77,10 +70,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
-// POST /api/auth/login
-// Works for both agency and client
-// ─────────────────────────────────────────────
+// Login for both agency and client users.
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -124,11 +114,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
-// POST /api/auth/invite
-// Agency invites a client — creates a sub-tenant under the agency
-// Protected: agency only
-// ─────────────────────────────────────────────
+// Agency-only client invite.
 router.post('/invite', authMiddleware, agencyOnly, async (req, res) => {
   const { name, email, password } = req.body;
   const agency_id = req.user.tenant_id;

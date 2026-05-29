@@ -3,7 +3,7 @@ const { authMiddleware } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Realistic GMB failure messages
+// Sample failure reasons for the mock publisher.
 const FAILURE_REASONS = [
   'GMB service unavailable',
   'Rate limit exceeded — too many requests',
@@ -11,14 +11,7 @@ const FAILURE_REASONS = [
   'Post content violates GMB community guidelines',
 ];
 
-// ─────────────────────────────────────────────
-// POST /api/gmb/publish
-// Mock Google My Business publish endpoint.
-// In production, this would call the Google Business Profile API.
-//
-// Body: { tenant_id, post_title, post_content, location_id }
-// Returns: 90% success, 10% failure (simulates real-world GMB errors)
-// ─────────────────────────────────────────────
+// Mock Google Business post publish.
 router.post('/publish', authMiddleware, async (req, res) => {
   const { post_title, post_content, location_id } = req.body;
 
@@ -26,11 +19,11 @@ router.post('/publish', authMiddleware, async (req, res) => {
     return res.status(400).json({ error: 'post_title and post_content are required' });
   }
 
-  // Simulate GMB API network latency (200–900ms)
+  // Simulate API latency.
   const delay = Math.floor(Math.random() * 700) + 200;
   await new Promise((r) => setTimeout(r, delay));
 
-  // 90% success rate, 10% failure — matches real-world GMB reliability
+  // 90% success, 10% failure.
   const isSuccess = Math.random() < 0.9;
 
   if (isSuccess) {

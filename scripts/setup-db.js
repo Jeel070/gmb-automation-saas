@@ -1,7 +1,3 @@
-/**
- * Setup DB — creates all tables.
- * Run once: node scripts/setup-db.js
- */
 require('dotenv').config();
 
 const fs = require('fs');

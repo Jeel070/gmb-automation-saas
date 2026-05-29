@@ -52,7 +52,6 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {/* ── Sidebar ─────────────────────────────── */}
       <aside className="w-60 bg-gray-900 flex flex-col flex-shrink-0">
         {/* Brand */}
         <div className="px-4 py-5 border-b border-gray-800">
@@ -60,10 +59,8 @@ export default function DashboardLayout({ children }) {
           <div className="text-gray-400 text-xs mt-0.5">Multi-tenant Platform</div>
         </div>
 
-        {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           <NavLink href="/dashboard">
-            {/* Dashboard icon */}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
@@ -84,7 +81,7 @@ export default function DashboardLayout({ children }) {
             Create Post
           </NavLink>
 
-          {/* Agency-only: Invite clients */}
+          {/* Agency-only link */}
           {user.type === 'agency' && (
             <NavLink href="/dashboard/invite">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,7 +92,6 @@ export default function DashboardLayout({ children }) {
           )}
         </nav>
 
-        {/* User info + logout */}
         <div className="px-3 py-4 border-t border-gray-800">
           <div className="px-2 mb-3">
             <div className="text-white text-sm font-medium truncate">{user.name}</div>
@@ -121,7 +117,6 @@ export default function DashboardLayout({ children }) {
         </div>
       </aside>
 
-      {/* ── Main content ────────────────────────── */}
       <main className="flex-1 overflow-y-auto">
         {children}
       </main>

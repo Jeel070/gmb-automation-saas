@@ -3,11 +3,7 @@ const db = require('../db');
 const { authMiddleware, agencyOnly } = require('../middleware/auth');
 
 const router = express.Router();
-
-// ─────────────────────────────────────────────
-// GET /api/tenant/profile
-// Returns the logged-in tenant's profile
-// ─────────────────────────────────────────────
+// Current tenant profile.
 router.get('/profile', authMiddleware, async (req, res) => {
   try {
     const result = await db.query(
@@ -26,10 +22,7 @@ router.get('/profile', authMiddleware, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
-// GET /api/tenant/stats
-// Returns post counts grouped by status for the logged-in tenant
-// ─────────────────────────────────────────────
+// Post counts by status for current tenant.
 router.get('/stats', authMiddleware, async (req, res) => {
   try {
     const result = await db.query(
@@ -51,10 +44,7 @@ router.get('/stats', authMiddleware, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
-// GET /api/tenant/clients
-// Agency only — lists all clients under this agency
-// ─────────────────────────────────────────────
+// Agency-only list of client tenants.
 router.get('/clients', authMiddleware, agencyOnly, async (req, res) => {
   try {
     const result = await db.query(

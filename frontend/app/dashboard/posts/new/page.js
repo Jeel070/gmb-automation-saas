@@ -18,17 +18,16 @@ const TONES = [
   { value: 'casual', label: 'Casual' },
 ];
 
-// Default datetime: 1 hour from now
+// Default to one hour from now.
 function defaultScheduledAt() {
   const d = new Date(Date.now() + 60 * 60 * 1000);
-  // Format: YYYY-MM-DDTHH:MM (for datetime-local input)
+  // datetime-local expects YYYY-MM-DDTHH:MM.
   return d.toISOString().slice(0, 16);
 }
 
 export default function NewPostPage() {
   const router = useRouter();
 
-  // Post form fields
   const [form, setForm] = useState({
     title: '',
     content: '',
@@ -36,7 +35,6 @@ export default function NewPostPage() {
     scheduled_at: defaultScheduledAt(),
   });
 
-  // AI generator fields
   const [ai, setAi] = useState({
     business_name: '',
     location: '',
@@ -50,7 +48,6 @@ export default function NewPostPage() {
   const [error, setError] = useState('');
   const [aiError, setAiError] = useState('');
 
-  // ── AI Generate ──────────────────────────────────
   async function handleGenerate(e) {
     e.preventDefault();
     setAiError('');
@@ -64,7 +61,7 @@ export default function NewPostPage() {
     setGenerating(true);
     try {
       const data = await postsAPI.generate(ai);
-      // Pre-fill the post form with generated content
+      // Fill title/content with generated values.
       setForm((prev) => ({
         ...prev,
         title: data.title,
@@ -80,7 +77,6 @@ export default function NewPostPage() {
     }
   }
 
-  // ── Submit post ──────────────────────────────────
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
@@ -107,11 +103,9 @@ export default function NewPostPage() {
 
       <h1 className="text-2xl font-bold text-gray-900 mb-8">Create New Post</h1>
 
-      {/* ── AI Generator Card ──────────────────────── */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
-            {/* sparkle icon */}
             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
             </svg>
@@ -202,7 +196,6 @@ export default function NewPostPage() {
         </form>
       </div>
 
-      {/* ── Post Form ──────────────────────────────── */}
       <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 p-6 space-y-5">
         <h2 className="font-semibold text-gray-900 mb-1">Post Details</h2>
 

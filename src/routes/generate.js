@@ -3,7 +3,7 @@ const { authMiddleware } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Tone hints passed into the prompt (for OpenAI)
+// Tone hints for prompt building.
 const TONE_HINTS = {
   professional: 'Use a professional and trustworthy tone.',
   friendly: 'Use a warm, friendly, and welcoming tone.',
@@ -11,8 +11,7 @@ const TONE_HINTS = {
   casual: 'Use a casual, relaxed tone like talking to a friend.',
 };
 
-// ── Realistic mock content per post type ──────────────────────
-// Used when OPENAI_API_KEY is not set (or as fallback if OpenAI fails)
+// Mock content used when no OpenAI key is set or API fails.
 const MOCK = {
   'whats-new': (biz, loc) => ({
     title: `Exciting Update from ${biz}!`,
@@ -28,10 +27,6 @@ const MOCK = {
   }),
 };
 
-// ─────────────────────────────────────────────
-// POST /api/posts/generate
-// Body: { business_name, location, post_type, tone }
-// ─────────────────────────────────────────────
 router.post('/', authMiddleware, async (req, res) => {
   const { business_name, location, post_type, tone } = req.body;
 
@@ -48,10 +43,7 @@ router.post('/', authMiddleware, async (req, res) => {
     });
   }
 
-  // ── Real OpenAI call ──────────────────────────────────────────────
-  // This block runs only when OPENAI_API_KEY is set in your .env
-  // Model: gpt-4o-mini (cheapest + fast — ideal for this use case)
-  // ─────────────────────────────────────────────────────────────────
+  // Try real AI first when key is available.
   if (process.env.OPENAI_API_KEY) {
     try {
       const { default: OpenAI } = require('openai');
@@ -90,17 +82,14 @@ router.post('/', authMiddleware, async (req, res) => {
       });
     } catch (err) {
       console.error('[Generate] OpenAI error — falling back to mock:', err.message);
-      // Falls through to mock below if OpenAI fails
+      // Fallback to mock response below.
     }
   }
 
-  // ── Mock response ─────────────────────────────────────────────────
-  // Used when OPENAI_API_KEY is not set, or if the OpenAI call above failed.
-  // To use real AI: add OPENAI_API_KEY=sk-... to your .env file.
-  // ─────────────────────────────────────────────────────────────────
+  // Use mock output if OpenAI is disabled/unavailable.
   const { title, content } = MOCK[post_type](business_name, location);
 
-  // Small delay so the frontend loading spinner is visible
+  // Keep a tiny delay so UI loading state is visible.
   await new Promise((r) => setTimeout(r, 800));
 
   return res.status(200).json({

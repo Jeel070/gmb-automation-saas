@@ -6,15 +6,9 @@ const { processPost } = require('../scheduler/processScheduledPosts');
 const { postQueue } = require('../scheduler/queue');
 
 const router = express.Router();
-
-// All post routes are protected
 router.use(authMiddleware);
 
-// ─────────────────────────────────────────────
-// POST /api/posts
-// Create a new post (draft or schedule it)
-// Body: { title, content, image_url?, scheduled_at }
-// ─────────────────────────────────────────────
+// Create a post.
 router.post('/', async (req, res) => {
   const { title, content, image_url, scheduled_at } = req.body;
   const tenant_id = req.user.tenant_id;
@@ -28,7 +22,7 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'scheduled_at must be a valid ISO date string' });
   }
 
-  // Status is 'scheduled' if the time is in the future, otherwise 'draft'
+  // Future time = scheduled, past time = draft.
   const status = scheduledDate > new Date() ? 'scheduled' : 'draft';
 
   try {
@@ -41,7 +35,7 @@ router.post('/', async (req, res) => {
 
     const post = result.rows[0];
 
-    // enqueue a delayed BullMQ job that fires exactly when the post is due
+    // Queue publish job for scheduled time.
     if (status === 'scheduled') {
       const delay = Math.max(0, scheduledDate.getTime() - Date.now());
       await postQueue.add('publish-post', { postId: post.id }, {
@@ -63,11 +57,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
-// GET /api/posts
-// List all posts for the current tenant
-// Optional query: ?status=scheduled
-// ─────────────────────────────────────────────
+// List posts for current tenant.
 router.get('/', async (req, res) => {
   const tenant_id = req.user.tenant_id;
   const { status } = req.query;
@@ -79,7 +69,7 @@ router.get('/', async (req, res) => {
   `;
   const params = [tenant_id];
 
-  // Filter by status if provided
+  // Optional status filter.
   if (status) {
     params.push(status);
     queryText += ` AND status = $${params.length}`;
@@ -96,10 +86,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
-// GET /api/posts/:id
-// Get a single post — tenant-scoped (can never see another tenant's post)
-// ─────────────────────────────────────────────
 router.get('/:id', async (req, res) => {
   const tenant_id = req.user.tenant_id;
   const { id } = req.params;
@@ -121,17 +107,14 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
-// PATCH /api/posts/:id
-// Update a post — only allowed if status is draft or scheduled
-// ─────────────────────────────────────────────
+// Update a post while still editable.
 router.patch('/:id', async (req, res) => {
   const tenant_id = req.user.tenant_id;
   const { id } = req.params;
   const { title, content, image_url, scheduled_at } = req.body;
 
   try {
-    // Verify ownership and current status
+    // Check ownership and status first.
     const existing = await db.query(
       'SELECT id, status FROM posts WHERE id = $1 AND tenant_id = $2',
       [id, tenant_id]
@@ -178,7 +161,7 @@ router.patch('/:id', async (req, res) => {
 
     const updated = result.rows[0];
 
-    // if rescheduled, enqueue a new delayed job for the new time
+    // Re-queue if post is still scheduled.
     if (scheduled_at && updated.status === 'scheduled') {
       const delay = Math.max(0, new Date(updated.scheduled_at).getTime() - Date.now());
       await postQueue.add('publish-post', { postId: updated.id }, {
@@ -197,10 +180,6 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
-// DELETE /api/posts/:id
-// Delete a post — tenant-scoped
-// ─────────────────────────────────────────────
 router.delete('/:id', async (req, res) => {
   const tenant_id = req.user.tenant_id;
   const { id } = req.params;
@@ -222,10 +201,7 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
-// POST /api/posts/:id/publish-now
-// Manually trigger publish for a specific post (for testing)
-// ─────────────────────────────────────────────
+// Trigger immediate publish for one post.
 router.post('/:id/publish-now', async (req, res) => {
   const tenant_id = req.user.tenant_id;
   const { id } = req.params;
@@ -250,16 +226,13 @@ router.post('/:id/publish-now', async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
-// GET /api/posts/:id/logs
-// Get publish logs for a specific post — tenant-scoped
-// ─────────────────────────────────────────────
+// Fetch publish logs for one post.
 router.get('/:id/logs', async (req, res) => {
   const tenant_id = req.user.tenant_id;
   const { id } = req.params;
 
   try {
-    // First confirm the post belongs to this tenant
+    // Confirm tenant owns this post.
     const post = await db.query(
       'SELECT id FROM posts WHERE id = $1 AND tenant_id = $2',
       [id, tenant_id]
