@@ -20,7 +20,7 @@ After seeding the database (step 5 below):
 
 | Role | Email | Password |
 |---|---|---|
-| **Agency** | `agency@demo.com` | `agency123` |
+| **Agency** | `test@agency.com` | `Woyce@123` |
 | **Client** | `client@demo.com` | `client123` |
 
 ---
@@ -137,7 +137,7 @@ npm run seed
 ```
 
 This creates:
-- Agency account: `agency@demo.com` / `agency123`
+- Agency account: `test@agency.com` / `Woyce@123`
 - Client account: `client@demo.com` / `client123`
 - 3 sample posts (one due immediately, one in 1 hour, one draft)
 

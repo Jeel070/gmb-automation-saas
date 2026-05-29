@@ -53,7 +53,7 @@ export default function LoginPage() {
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="agency@demo.com"
+              placeholder="test@agency.com"
             />
           </div>
 
@@ -82,7 +82,7 @@ export default function LoginPage() {
         {/* Test credentials hint */}
         <div className="mt-5 p-3 bg-gray-50 rounded-lg text-xs text-gray-500 space-y-1">
           <div className="font-medium text-gray-600">Test accounts (after seeding):</div>
-          <div>Agency: agency@demo.com / agency123</div>
+          <div>Agency: test@agency.com / Woyce@123</div>
           <div>Client: client@demo.com / client123</div>
         </div>
 

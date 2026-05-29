@@ -3,7 +3,7 @@
  * Run: node scripts/seed.js
  *
  * Test credentials after seeding:
- *   Agency:  agency@demo.com   / agency123
+ *   Agency:  test@agency.com   / Woyce@123
  *   Client:  client@demo.com   / client123
  */
 require('dotenv').config();
@@ -20,25 +20,25 @@ async function seed() {
 
     // ── Agency ──────────────────────────────────
     const agencyId = uuidv4();
-    const agencyHash = await bcrypt.hash('agency123', 10);
+    const agencyHash = await bcrypt.hash('Woyce@123', 10);
 
     await client.query(
       `INSERT INTO tenants (id, name, email, password_hash, type)
        VALUES ($1, $2, $3, $4, 'agency')
        ON CONFLICT (email) DO NOTHING`,
-      [agencyId, 'Demo Agency', 'agency@demo.com', agencyHash]
+      [agencyId, 'Demo Agency', 'test@agency.com', agencyHash]
     );
 
     // Re-fetch to get the actual ID (in case it already existed)
     const agencyRow = await client.query(
       'SELECT id FROM tenants WHERE email = $1',
-      ['agency@demo.com']
+      ['test@agency.com']
     );
     const actualAgencyId = agencyRow.rows[0].id;
 
     console.log(`✓ Agency created`);
-    console.log(`  Email:    agency@demo.com`);
-    console.log(`  Password: agency123`);
+    console.log(`  Email:    test@agency.com`);
+    console.log(`  Password: Woyce@123`);
     console.log(`  ID:       ${actualAgencyId}\n`);
 
     // ── Client (sub-tenant under agency) ────────
@@ -101,7 +101,7 @@ async function seed() {
 
     console.log('\n All seed data created successfully!');
     console.log('\n Ready to test:');
-    console.log('  POST /api/auth/login  { "email": "agency@demo.com", "password": "agency123" }');
+    console.log('  POST /api/auth/login  { "email": "test@agency.com", "password": "Woyce@123" }');
     console.log('  POST /api/auth/login  { "email": "client@demo.com", "password": "client123" }');
 
   } catch (err) {
